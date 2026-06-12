@@ -16,7 +16,7 @@ concurrency:
 jobs:
   build:
     strategy:
-      max-parallel: 2
+      max-parallel: 0
       fail-fast: true
       matrix:
         arch: [x86_64, aarch64]
@@ -30,6 +30,18 @@ jobs:
     name: build-${{ matrix.arch }}-${{ matrix.runtime }}
     timeout-minutes: 180
     steps:
+      - uses: endersonmenezes/free-disk-space@v4
+        with:
+          remove_android: true
+          remove_dotnet: true
+          remove_haskell: true
+          remove_tool_cache: true
+          remove_swap: true
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable firefox temurin-*"
+          remove_packages_one_command: true
+          remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle"
+          rm_cmd: "rmz"
+          testing: false
       - uses: actions/checkout@v6
         with:
           fetch-depth: 1
@@ -41,7 +53,7 @@ jobs:
           ls -lah dist/img
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: img-${{ matrix.arch }}-${{ matrix.runtime }}
           path: dist/img/*-${{ matrix.runtime }}.*
@@ -64,7 +76,7 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: dist/img
 
