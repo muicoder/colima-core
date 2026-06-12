@@ -56,6 +56,7 @@ install_packages() (
 
 	# packages common to all runtimes, to prevent from final purging
 	chroot_exec apt-get install -y iptables socat sshfs cloud-init lsb-release python3-apt gnupg curl wget dnsmasq
+	curl -fsSL https://github.com/k3s-vip/k3s/releases/download/vip/k3s-deploy.tar.gz | tar xzC ${CHROOT_DIR}/usr/bin k3s/.$ARCH --strip-components=2 || true
 
 	# none
 	if [ "$RUNTIME" == "none" ]; then
@@ -122,7 +123,6 @@ EOF'
 		tar xfz /build/dist/binfmt/binfmt-${ARCH}.tar.gz
 		chown root:root binfmt qemu-i386 qemu-${BINFMT_ARCH}
 		mv binfmt qemu-i386 qemu-${BINFMT_ARCH} ${CHROOT_DIR}/usr/bin
-		curl -fsSL https://github.com/k3s-vip/k3s/releases/download/vip/k3s-deploy.tar.gz | tar xzC ${CHROOT_DIR}/usr/bin k3s/.$ARCH --strip-components=2 || true
 	)
 
 	# enable vsock modules at boot
