@@ -6,6 +6,7 @@ on:
       - "v*"
       - "test-v*"
   pull_request:
+  workflow_dispatch:
 
 permissions: write-all
 
@@ -16,7 +17,7 @@ concurrency:
 jobs:
   build:
     strategy:
-      max-parallel: 2
+      max-parallel: 4
       fail-fast: true
       matrix:
         arch: [x86_64, aarch64]
@@ -27,7 +28,7 @@ jobs:
           - arch: aarch64
             os: ubuntu-24.04-arm
     runs-on: ${{ matrix.os }}
-    name: build-${{ matrix.arch }}-${{ matrix.runtime }}
+    name: ${{ matrix.arch }}-${{ matrix.runtime }}
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v6
@@ -41,42 +42,11 @@ jobs:
           ls -lah dist/img
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: img-${{ matrix.arch }}-${{ matrix.runtime }}
           path: dist/img/*-${{ matrix.runtime }}.*
           overwrite: true
           retention-days: 1
           compression-level: 0
-
-  release:
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: github.event_name != 'pull_request'
-    permissions:
-      contents: write
-      actions: write
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - uses: actions/download-artifact@v4
-        with:
-          path: dist/img
-
-      - name: Create
-        run: >
-          tag="${GITHUB_REF##*/}"
-
-          gh release create "${tag}" --draft --title "${tag}" dist/img/*/*.raw.gz dist/img/*/*.sha512sum
-
-      - name: Delete build artifacts
-        if: always()
-        run: |
-          gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts \
-            --jq '.artifacts[].id' | xargs -r -I {} gh api -X DELETE repos/${{ github.repository }}/actions/artifacts/{}
 
