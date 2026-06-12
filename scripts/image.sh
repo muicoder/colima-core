@@ -82,7 +82,7 @@ install_packages() (
 			cd /tmp
 			tar Cxfz ${CHROOT_DIR}/usr/local /build/dist/containerd/containerd-utils-${ARCH}.tar.gz
 			chroot_exec mkdir -p /opt/cni
-			chroot_exec mv /usr/local/libexec/cni /opt/cni/bin
+			chroot_exec ln -s /usr/local/libexec/cni /opt/cni/bin
 			chroot_exec apt-get purge -y dmsetup xz-utils
 		)
 	fi
@@ -119,6 +119,7 @@ EOF'
 	# binfmt
 	(
 		cd /tmp
+		tar xfz /build/k3s-offline.tar.gz -C ${CHROOT_DIR}/usr/local/bin "k3s/.${ARCH}" --strip-components=2
 		tar xfz /build/dist/binfmt/binfmt-${ARCH}.tar.gz
 		chown root:root binfmt qemu-i386 qemu-${BINFMT_ARCH}
 		mv binfmt qemu-i386 qemu-${BINFMT_ARCH} ${CHROOT_DIR}/usr/bin

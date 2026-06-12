@@ -10,6 +10,7 @@ echo vars: $ARCH $BINFMT_ARCH $UBUNTU_VERSION $DOCKER_VERSION $RUNTIME
 
 # computed variables
 SCRIPT_DIR=$(realpath "$(dirname "$(dirname $0)")")
+until curl -SLO https://github.com/k3s-vip/k3s/releases/download/vip/k3s-offline.tar.gz; do sleep 3; done
 
 # dependencies in case of cross-arch
 docker run --privileged --rm tonistiigi/binfmt --install $BINFMT_ARCH
