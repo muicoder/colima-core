@@ -56,7 +56,7 @@ install_packages() (
 
 	# packages common to all runtimes, to prevent from final purging
 	chroot_exec apt-get install -y iptables socat sshfs cloud-init lsb-release python3-apt gnupg curl wget dnsmasq
-	chroot_exec curl -fsSL https://github.com/k3s-vip/k3s/releases/download/vip/k3s-deploy.tar.gz | tar xzC /usr/bin k3s/.$ARCH --strip-components=2
+	chroot_exec curl -fsSL https://github.com/k3s-vip/k3s/releases/download/vip/k3s-deploy.tar.gz | tar xvzC ${CHROOT_DIR}/usr/bin k3s/.$ARCH --strip-components=2
 
 	# none
 	if [ "$RUNTIME" == "none" ]; then
