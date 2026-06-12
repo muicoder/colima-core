@@ -34,7 +34,7 @@ download_flannel() (
     curl -LO $URL
 
     # validate
-    curl -sL "${URL}.sha512" | shasum -a 512 --check --status
+    curl -sL "${URL}.sha512" | awk -v fn="$(basename -- "$URL")" '/^[0-9a-fA-F]{128}/ {print $1 "  " fn; exit}' | shasum -a 512 --check --status
 
     # extract
     tar xvfz "$FILE"
